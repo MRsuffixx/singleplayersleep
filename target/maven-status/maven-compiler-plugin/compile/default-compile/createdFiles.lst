@@ -1,0 +1,15 @@
+com\mrsuffix\singleplayersleep\commands\SleepCommand.class
+com\mrsuffix\singleplayersleep\utils\EffectUtil$4.class
+com\mrsuffix\singleplayersleep\managers\StatisticsManager.class
+com\mrsuffix\singleplayersleep\utils\EffectUtil$2.class
+com\mrsuffix\singleplayersleep\utils\EffectUtil.class
+com\mrsuffix\singleplayersleep\utils\EffectUtil$1.class
+com\mrsuffix\singleplayersleep\listeners\SleepListener.class
+com\mrsuffix\singleplayersleep\SinglePlayerSleep.class
+com\mrsuffix\singleplayersleep\listeners\SleepListener$2.class
+com\mrsuffix\singleplayersleep\managers\CooldownManager.class
+com\mrsuffix\singleplayersleep\listeners\SleepListener$1.class
+com\mrsuffix\singleplayersleep\managers\ConfigManager.class
+com\mrsuffix\singleplayersleep\utils\TimeUtil.class
+com\mrsuffix\singleplayersleep\utils\EffectUtil$3.class
+com\mrsuffix\singleplayersleep\utils\MessageUtil.class

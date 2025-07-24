@@ -1,0 +1,95 @@
+# SinglePlayerSleep Configuration
+# Modern Minecraft plugin for single-player sleep functionality
+
+# ========================================
+# CORE SETTINGS
+# ========================================
+
+# Delay in ticks before night is skipped after player sleeps (65 ticks = ~3.25 seconds)
+sleep-delay-ticks: 65
+
+# Cooldown in seconds before sleep can be triggered again in the same world
+cooldown-seconds: 30
+
+# Clear weather (rain/thunder) when morning comes
+clear-weather: true
+
+# Enable debug mode for detailed logging
+debug-mode: false
+
+# ========================================
+# WORLD SETTINGS
+# ========================================
+
+# List of worlds where sleep functionality is enabled
+# Leave empty to enable in all worlds
+enabled-worlds: []
+#  - world
+#  - world_nether
+#  - world_the_end
+
+# ========================================
+# AUTO-SAVE SETTINGS
+# ========================================
+
+auto-save:
+  # Enable automatic world saving after night skip
+  enabled: true
+
+  # Delay in ticks before auto-save triggers (10 ticks = 0.5 seconds)
+  delay-ticks: 10
+
+# ========================================
+# VISUAL & SOUND EFFECTS
+# ========================================
+
+effects:
+  particles:
+    # Enable particle effects during sleep and morning
+    enabled: true
+
+  sounds:
+    # Enable sound effects during sleep and morning
+    enabled: true
+
+# ========================================
+# MESSAGES
+# ========================================
+
+messages:
+  # Message when a player sleeps and triggers night skip
+  player-sleeping: "&a{player} slept. Everyone, good night!"
+
+  # Message when morning comes
+  good-morning: "&6Good morning everyone!"
+
+  # Message when auto-save occurs
+  auto-save: "&7&o[Server: Saving the game...]"
+
+  # Message when cooldown is active
+  cooldown-active: "&cSleep is on cooldown for {time} more seconds!"
+
+  # Message for insufficient permissions
+  no-permission: "&cYou don't have permission to use this command!"
+
+  # Message when trying to sleep during day
+  not-night: "&cYou can only sleep during the night!"
+
+  # Message when sleep is disabled in current world
+  world-disabled: "&cSleep functionality is disabled in this world!"
+
+# ========================================
+# ADVANCED SETTINGS
+# ========================================
+
+# Delay in ticks after morning before auto-save triggers
+auto-save-delay-ticks: 10
+
+# Maximum number of sleep events to track per player for statistics
+max-player-stats: 1000
+
+# Enable anti-spam protection
+anti-spam-protection: true
+
+# Log all sleep events to console
+log-sleep-events: true

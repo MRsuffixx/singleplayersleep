@@ -1,0 +1,17 @@
+# SinglePlayerSleep Statistics
+# This file tracks usage statistics for the plugin
+
+# Total number of sleep events triggered
+total-sleep-count: 0
+
+# Total number of manual night skips
+manual-skips: 0
+
+# Individual player sleep counts
+player-sleep-counts: {}
+
+# Last time statistics were updated (timestamp)
+last-updated: 0
+
+# Plugin version when statistics were created
+version: "1.0.0"
