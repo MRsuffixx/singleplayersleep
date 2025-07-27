@@ -11,7 +11,6 @@
 
 ---
 [Click here](https://modrinth.com/plugin/singleplayersleep#download) to download from the Modrinth page.
----
 ## 📜 About
 
 **SinglePlayerSleep** is designed for Minecraft servers that aim to keep the immersive single-player feel, even in multiplayer mode, by allowing the night to be skipped when a single player sleeps.  
