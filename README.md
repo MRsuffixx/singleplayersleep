@@ -10,7 +10,8 @@
 > ✨ A modern and lightweight Minecraft plugin to skip the night instantly in single-player worlds, packed with rich features, visual effects, and fully configurable settings.
 
 ---
-
+[Click here](https://modrinth.com/plugin/singleplayersleep#download) to download from the Modrinth page.
+---
 ## 📜 About
 
 **SinglePlayerSleep** is designed for Minecraft servers that aim to keep the immersive single-player feel, even in multiplayer mode, by allowing the night to be skipped when a single player sleeps.  
