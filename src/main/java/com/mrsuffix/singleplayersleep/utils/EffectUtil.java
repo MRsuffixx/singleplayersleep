@@ -23,6 +23,9 @@ public class EffectUtil {
 
         Location location = player.getLocation();
         World world = player.getWorld();
+        
+        // Calculate particle count based on optimization settings
+        int particleCount = calculateParticleCount(world);
 
         // Play sleep sound
         if (plugin.getConfigManager().areSoundsEnabled()) {
@@ -49,8 +52,8 @@ public class EffectUtil {
                             (Math.random() - 0.5) * 3
                     );
 
-                    world.spawnParticle(Particle.CLOUD, particleLocation, 1, 0.1, 0.1, 0.1, 0.01);
-                    world.spawnParticle(Particle.ENCHANTMENT_TABLE, particleLocation, 2, 0.2, 0.2, 0.2, 0.1);
+                    world.spawnParticle(Particle.CLOUD, particleLocation, Math.max(1, particleCount / 2), 0.1, 0.1, 0.1, 0.01);
+                    world.spawnParticle(Particle.ENCHANTMENT_TABLE, particleLocation, particleCount, 0.2, 0.2, 0.2, 0.1);
 
                     count++;
                 }
@@ -73,6 +76,9 @@ public class EffectUtil {
 
         Location location = player.getLocation();
         World world = player.getWorld();
+        
+        // Calculate particle count based on optimization settings
+        int particleCount = calculateParticleCount(world);
 
         // Play morning sound (rooster crow simulation)
         if (plugin.getConfigManager().areSoundsEnabled()) {
@@ -108,8 +114,8 @@ public class EffectUtil {
                             (Math.random() - 0.5) * 4
                     );
 
-                    world.spawnParticle(Particle.FLAME, particleLocation, 1, 0.1, 0.1, 0.1, 0.01);
-                    world.spawnParticle(Particle.VILLAGER_HAPPY, particleLocation, 2, 0.3, 0.3, 0.3, 0.1);
+                    world.spawnParticle(Particle.FLAME, particleLocation, Math.max(1, particleCount / 2), 0.1, 0.1, 0.1, 0.01);
+                    world.spawnParticle(Particle.VILLAGER_HAPPY, particleLocation, particleCount, 0.3, 0.3, 0.3, 0.1);
 
                     // Occasional firework-like effect
                     if (count % 10 == 0) {
@@ -154,5 +160,32 @@ public class EffectUtil {
                 remaining--;
             }
         }.runTaskTimer(plugin, 0L, 20L);
+    }
+    
+    /**
+     * Calculate optimal particle count based on player count and optimization settings
+     * @param world World to check
+     * @return Optimized particle count
+     */
+    private static int calculateParticleCount(World world) {
+        SinglePlayerSleep plugin = SinglePlayerSleep.getInstance();
+        
+        if (!plugin.getConfigManager().isParticleOptimizeEnabled()) {
+            return 2; // Default particle count
+        }
+        
+        int playerCount = world.getPlayers().size();
+        int maxPerPlayer = plugin.getConfigManager().getMaxParticlesPerPlayer();
+        
+        // Reduce particles as player count increases
+        if (playerCount <= 1) {
+            return maxPerPlayer;
+        } else if (playerCount <= 5) {
+            return Math.max(2, maxPerPlayer / 2);
+        } else if (playerCount <= 10) {
+            return Math.max(1, maxPerPlayer / 3);
+        } else {
+            return 1; // Minimum particles for large servers
+        }
     }
 }

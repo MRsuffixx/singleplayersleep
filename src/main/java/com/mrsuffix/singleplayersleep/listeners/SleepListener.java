@@ -6,7 +6,6 @@ import com.mrsuffix.singleplayersleep.utils.MessageUtil;
 import com.mrsuffix.singleplayersleep.utils.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -77,7 +76,13 @@ public class SleepListener implements Listener {
             return;
         }
 
-        // Start sleep process
+        // Check if percentage mode is enabled
+        if (plugin.getConfigManager().isPercentageMode()) {
+            handlePercentageMode(player, world);
+            return;
+        }
+
+        // Start sleep process (single player mode)
         processingSleep.add(worldKey);
         plugin.debugLog("Starting sleep process for " + player.getName() + " in world " + world.getName());
 
@@ -145,6 +150,80 @@ public class SleepListener implements Listener {
         }.runTaskLater(plugin, plugin.getConfigManager().getAutoSaveDelay());
 
         plugin.debugLog("Night skipped successfully in world " + world.getName());
+    }
+
+    /**
+     * Handle percentage-based sleep mode
+     * @param player Player who entered bed
+     * @param world World to check
+     */
+    private void handlePercentageMode(Player player, World world) {
+        // Get all non-AFK players in the world
+        long totalPlayers = world.getPlayers().stream()
+                .filter(p -> p.getGameMode() != GameMode.CREATIVE && p.getGameMode() != GameMode.SPECTATOR)
+                .filter(p -> !plugin.getConfigManager().shouldIgnoreAFKPlayers() || !plugin.getAFKManager().isAFK(p))
+                .count();
+
+        // Count sleeping players
+        long sleepingPlayers = world.getPlayers().stream()
+                .filter(Player::isSleeping)
+                .filter(p -> p.getGameMode() != GameMode.CREATIVE && p.getGameMode() != GameMode.SPECTATOR)
+                .filter(p -> !plugin.getConfigManager().shouldIgnoreAFKPlayers() || !plugin.getAFKManager().isAFK(p))
+                .count();
+
+        int requiredPercentage = plugin.getConfigManager().getSleepPercentage();
+        int requiredPlayers = (int) Math.ceil((totalPlayers * requiredPercentage) / 100.0);
+
+        plugin.debugLog("Percentage mode: " + sleepingPlayers + "/" + requiredPlayers + " players sleeping (" + 
+                        (sleepingPlayers * 100 / Math.max(1, totalPlayers)) + "%)");
+
+        // Check if enough players are sleeping
+        if (sleepingPlayers >= requiredPlayers) {
+            String worldKey = world.getName();
+            if (processingSleep.contains(worldKey)) {
+                return;
+            }
+
+            processingSleep.add(worldKey);
+            plugin.debugLog("Percentage threshold reached, skipping night");
+
+            // Play effects for all sleeping players
+            world.getPlayers().stream()
+                    .filter(Player::isSleeping)
+                    .forEach(EffectUtil::playSleepEffects);
+
+            // Broadcast sleep message
+            String sleepMessage = plugin.getConfigManager().getMessage("player-sleeping")
+                    .replace("{player}", sleepingPlayers + " players");
+            MessageUtil.broadcastMessage(sleepMessage);
+
+            // Update statistics
+            plugin.getStatisticsManager().incrementSleepCount();
+            world.getPlayers().stream()
+                    .filter(Player::isSleeping)
+                    .forEach(p -> plugin.getStatisticsManager().addPlayerSleep(p.getName()));
+
+            // Schedule night skip
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    try {
+                        skipNight(world, player);
+                    } finally {
+                        processingSleep.remove(worldKey);
+                    }
+                }
+            }.runTaskLater(plugin, plugin.getConfigManager().getSleepDelay());
+        } else {
+            // Not enough players sleeping, show progress
+            int currentPercentage = (int) ((sleepingPlayers * 100) / Math.max(1, totalPlayers));
+            String message = plugin.getConfigManager().getMessage("not-enough-sleepers")
+                    .replace("{sleeping}", String.valueOf(sleepingPlayers))
+                    .replace("{required}", String.valueOf(requiredPlayers))
+                    .replace("{percentage}", String.valueOf(currentPercentage));
+            
+            world.getPlayers().forEach(p -> MessageUtil.sendMessage(p, message));
+        }
     }
 
     /**

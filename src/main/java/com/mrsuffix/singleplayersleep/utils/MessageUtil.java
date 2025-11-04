@@ -42,8 +42,11 @@ public class MessageUtil {
      * @param message Message to broadcast
      */
     public static void broadcastToWorld(String worldName, String message) {
-        Bukkit.getWorld(worldName).getPlayers().forEach(player ->
-                sendMessage(player, message));
+        var world = Bukkit.getWorld(worldName);
+        if (world != null) {
+            world.getPlayers().forEach(player ->
+                    sendMessage(player, message));
+        }
     }
 
     /**

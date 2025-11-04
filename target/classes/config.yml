@@ -17,6 +17,24 @@ clear-weather: true
 # Enable debug mode for detailed logging
 debug-mode: false
 
+# Sleep percentage mode (false = single player mode, true = percentage mode)
+percentage-mode: false
+
+# Percentage of online players required to sleep (only used if percentage-mode is true)
+# Example: 50 means 50% of players must sleep
+sleep-percentage: 50
+
+# AFK player settings
+afk-detection:
+  # Enable AFK player detection
+  enabled: true
+  
+  # Time in seconds before a player is considered AFK
+  timeout-seconds: 300
+  
+  # Ignore AFK players in sleep count
+  ignore-afk-players: true
+
 # ========================================
 # WORLD SETTINGS
 # ========================================
@@ -47,6 +65,12 @@ effects:
   particles:
     # Enable particle effects during sleep and morning
     enabled: true
+    
+    # Particle optimization - reduce particles based on player count
+    optimize: true
+    
+    # Maximum particles per player (when optimize is true)
+    max-per-player: 10
 
   sounds:
     # Enable sound effects during sleep and morning
@@ -77,13 +101,16 @@ messages:
 
   # Message when sleep is disabled in current world
   world-disabled: "&cSleep functionality is disabled in this world!"
+  
+  # Message for percentage mode (when not enough players are sleeping)
+  not-enough-sleepers: "&e{sleeping} out of {required} players are sleeping ({percentage}%)"
+  
+  # Message when a player is AFK
+  player-afk: "&7{player} is AFK and won't count towards sleep."
 
 # ========================================
 # ADVANCED SETTINGS
 # ========================================
-
-# Delay in ticks after morning before auto-save triggers
-auto-save-delay-ticks: 10
 
 # Maximum number of sleep events to track per player for statistics
 max-player-stats: 1000
@@ -93,3 +120,11 @@ anti-spam-protection: true
 
 # Log all sleep events to console
 log-sleep-events: true
+
+# Update checker settings
+update-checker:
+  # Enable automatic update checking on startup
+  enabled: true
+  
+  # GitHub repository (owner/repo)
+  github-repo: "MRsuffixx/SinglePlayerSleep"

@@ -3,10 +3,15 @@ com\mrsuffix\singleplayersleep\utils\EffectUtil$4.class
 com\mrsuffix\singleplayersleep\managers\StatisticsManager.class
 com\mrsuffix\singleplayersleep\utils\EffectUtil$2.class
 com\mrsuffix\singleplayersleep\utils\EffectUtil.class
+com\mrsuffix\singleplayersleep\managers\AFKManager$1.class
 com\mrsuffix\singleplayersleep\utils\EffectUtil$1.class
+com\mrsuffix\singleplayersleep\listeners\AFKListener.class
+com\mrsuffix\singleplayersleep\listeners\SleepListener$3.class
 com\mrsuffix\singleplayersleep\listeners\SleepListener.class
 com\mrsuffix\singleplayersleep\SinglePlayerSleep.class
 com\mrsuffix\singleplayersleep\listeners\SleepListener$2.class
+com\mrsuffix\singleplayersleep\managers\AFKManager.class
+com\mrsuffix\singleplayersleep\managers\UpdateChecker.class
 com\mrsuffix\singleplayersleep\managers\CooldownManager.class
 com\mrsuffix\singleplayersleep\listeners\SleepListener$1.class
 com\mrsuffix\singleplayersleep\managers\ConfigManager.class

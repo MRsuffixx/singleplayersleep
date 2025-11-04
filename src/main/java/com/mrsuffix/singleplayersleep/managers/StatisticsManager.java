@@ -41,8 +41,11 @@ public class StatisticsManager {
         manualSkips = statisticsConfig.getLong("manual-skips", 0);
 
         if (statisticsConfig.contains("player-sleep-counts")) {
-            for (String player : statisticsConfig.getConfigurationSection("player-sleep-counts").getKeys(false)) {
-                playerSleepCounts.put(player, statisticsConfig.getInt("player-sleep-counts." + player));
+            var section = statisticsConfig.getConfigurationSection("player-sleep-counts");
+            if (section != null) {
+                for (String player : section.getKeys(false)) {
+                    playerSleepCounts.put(player, statisticsConfig.getInt("player-sleep-counts." + player));
+                }
             }
         }
 

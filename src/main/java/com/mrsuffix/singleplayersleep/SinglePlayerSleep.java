@@ -1,10 +1,13 @@
 package com.mrsuffix.singleplayersleep;
 
 import com.mrsuffix.singleplayersleep.commands.SleepCommand;
+import com.mrsuffix.singleplayersleep.listeners.AFKListener;
 import com.mrsuffix.singleplayersleep.listeners.SleepListener;
+import com.mrsuffix.singleplayersleep.managers.AFKManager;
 import com.mrsuffix.singleplayersleep.managers.ConfigManager;
 import com.mrsuffix.singleplayersleep.managers.CooldownManager;
 import com.mrsuffix.singleplayersleep.managers.StatisticsManager;
+import com.mrsuffix.singleplayersleep.managers.UpdateChecker;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
@@ -22,6 +25,8 @@ public final class SinglePlayerSleep extends JavaPlugin {
     private ConfigManager configManager;
     private StatisticsManager statisticsManager;
     private CooldownManager cooldownManager;
+    private AFKManager afkManager;
+    private UpdateChecker updateChecker;
     private boolean debugMode;
 
     @Override
@@ -32,6 +37,8 @@ public final class SinglePlayerSleep extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         this.statisticsManager = new StatisticsManager(this);
         this.cooldownManager = new CooldownManager(this);
+        this.afkManager = new AFKManager(this);
+        this.updateChecker = new UpdateChecker(this);
 
         // Load configuration
         configManager.loadConfig();
@@ -41,9 +48,13 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new SleepListener(this), this);
+        getServer().getPluginManager().registerEvents(new AFKListener(this), this);
 
         // Register commands
         getCommand("sleep").setExecutor(new SleepCommand(this));
+
+        // Check for updates
+        updateChecker.checkForUpdates();
 
         // Log startup
         getLogger().info("SinglePlayerSleep v" + getDescription().getVersion() + " has been enabled!");
@@ -92,6 +103,22 @@ public final class SinglePlayerSleep extends JavaPlugin {
      */
     public CooldownManager getCooldownManager() {
         return cooldownManager;
+    }
+
+    /**
+     * Get the AFK manager
+     * @return AFKManager instance
+     */
+    public AFKManager getAFKManager() {
+        return afkManager;
+    }
+
+    /**
+     * Get the update checker
+     * @return UpdateChecker instance
+     */
+    public UpdateChecker getUpdateChecker() {
+        return updateChecker;
     }
 
     /**
