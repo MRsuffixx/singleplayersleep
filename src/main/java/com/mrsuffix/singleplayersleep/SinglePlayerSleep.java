@@ -4,6 +4,7 @@ import com.mrsuffix.singleplayersleep.commands.SleepCommand;
 import com.mrsuffix.singleplayersleep.listeners.AFKListener;
 import com.mrsuffix.singleplayersleep.listeners.SleepListener;
 import com.mrsuffix.singleplayersleep.managers.AFKManager;
+import com.mrsuffix.singleplayersleep.managers.BossBarManager;
 import com.mrsuffix.singleplayersleep.managers.ConfigManager;
 import com.mrsuffix.singleplayersleep.managers.CooldownManager;
 import com.mrsuffix.singleplayersleep.managers.StatisticsManager;
@@ -13,7 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Level;
 
 /**
- * SinglePlayerSleep - A modern Minecraft plugin that allows night to pass when only one player sleeps
+ * SinglePlayerSleep - A modern Minecraft plugin that allows night to pass when
+ * only one player sleeps
  * Compatible with Paper/Spigot 1.20+
  *
  * @author YourName
@@ -26,6 +28,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
     private StatisticsManager statisticsManager;
     private CooldownManager cooldownManager;
     private AFKManager afkManager;
+    private BossBarManager bossBarManager;
     private UpdateChecker updateChecker;
     private boolean debugMode;
 
@@ -37,7 +40,9 @@ public final class SinglePlayerSleep extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         this.statisticsManager = new StatisticsManager(this);
         this.cooldownManager = new CooldownManager(this);
+        this.cooldownManager = new CooldownManager(this);
         this.afkManager = new AFKManager(this);
+        this.bossBarManager = new BossBarManager(this);
         this.updateChecker = new UpdateChecker(this);
 
         // Load configuration
@@ -75,6 +80,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Get the plugin instance
+     * 
      * @return Plugin instance
      */
     public static SinglePlayerSleep getInstance() {
@@ -83,6 +89,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Get the configuration manager
+     * 
      * @return ConfigManager instance
      */
     public ConfigManager getConfigManager() {
@@ -91,6 +98,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Get the statistics manager
+     * 
      * @return StatisticsManager instance
      */
     public StatisticsManager getStatisticsManager() {
@@ -99,6 +107,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Get the cooldown manager
+     * 
      * @return CooldownManager instance
      */
     public CooldownManager getCooldownManager() {
@@ -107,14 +116,20 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Get the AFK manager
+     * 
      * @return AFKManager instance
      */
     public AFKManager getAFKManager() {
         return afkManager;
     }
 
+    public BossBarManager getBossBarManager() {
+        return bossBarManager;
+    }
+
     /**
      * Get the update checker
+     * 
      * @return UpdateChecker instance
      */
     public UpdateChecker getUpdateChecker() {
@@ -123,6 +138,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Check if debug mode is enabled
+     * 
      * @return true if debug mode is on
      */
     public boolean isDebugMode() {
@@ -131,6 +147,7 @@ public final class SinglePlayerSleep extends JavaPlugin {
 
     /**
      * Log debug message if debug mode is enabled
+     * 
      * @param message Message to log
      */
     public void debugLog(String message) {

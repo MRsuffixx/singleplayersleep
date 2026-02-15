@@ -12,7 +12,7 @@ public class ConfigManager {
 
     private final SinglePlayerSleep plugin;
     private FileConfiguration config;
-    
+
     // Cache for frequently accessed config values
     private long sleepDelay;
     private long autoSaveDelay;
@@ -32,6 +32,14 @@ public class ConfigManager {
     private boolean updateCheckerEnabled;
     private String githubRepo;
 
+    // New Config Values
+    private boolean bossBarEnabled;
+    private String bossBarTitle;
+    private String bossBarColor;
+    private String bossBarStyle;
+    private boolean smoothSleepEnabled;
+    private long smoothSleepSpeed;
+
     public ConfigManager(SinglePlayerSleep plugin) {
         this.plugin = plugin;
     }
@@ -43,13 +51,13 @@ public class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         this.config = plugin.getConfig();
-        
+
         // Cache all config values
         cacheConfigValues();
 
         plugin.debugLog("Configuration loaded and cached");
     }
-    
+
     /**
      * Cache all config values for better performance
      */
@@ -71,10 +79,20 @@ public class ConfigManager {
         maxParticlesPerPlayer = config.getInt("effects.particles.max-per-player", 10);
         updateCheckerEnabled = config.getBoolean("update-checker.enabled", true);
         githubRepo = config.getString("update-checker.github-repo", "MRsuffixx/SinglePlayerSleep");
+
+        // Load New Values
+        bossBarEnabled = config.getBoolean("effects.bossbar.enabled", true);
+        bossBarTitle = config.getString("effects.bossbar.title", "&e&lSleeping... &f({percentage}%)");
+        bossBarColor = config.getString("effects.bossbar.color", "BLUE");
+        bossBarStyle = config.getString("effects.bossbar.style", "SOLID");
+
+        smoothSleepEnabled = config.getBoolean("effects.smooth-sleep.enabled", true);
+        smoothSleepSpeed = config.getLong("effects.smooth-sleep.speed", 100L);
     }
 
     /**
      * Get sleep delay in ticks
+     * 
      * @return Delay in ticks (default: 65)
      */
     public long getSleepDelay() {
@@ -83,6 +101,7 @@ public class ConfigManager {
 
     /**
      * Get auto-save delay in ticks
+     * 
      * @return Delay in ticks (default: 10)
      */
     public long getAutoSaveDelay() {
@@ -91,6 +110,7 @@ public class ConfigManager {
 
     /**
      * Check if auto-save is enabled
+     * 
      * @return true if enabled
      */
     public boolean isAutoSaveEnabled() {
@@ -99,6 +119,7 @@ public class ConfigManager {
 
     /**
      * Get cooldown duration in seconds
+     * 
      * @return Cooldown in seconds
      */
     public long getCooldownDuration() {
@@ -107,6 +128,7 @@ public class ConfigManager {
 
     /**
      * Check if weather should be cleared
+     * 
      * @return true if weather should be cleared
      */
     public boolean shouldClearWeather() {
@@ -115,6 +137,7 @@ public class ConfigManager {
 
     /**
      * Check if debug mode is enabled
+     * 
      * @return true if debug mode is on
      */
     public boolean isDebugMode() {
@@ -123,6 +146,7 @@ public class ConfigManager {
 
     /**
      * Set debug mode
+     * 
      * @param enabled New debug mode state
      */
     public void setDebugMode(boolean enabled) {
@@ -133,6 +157,7 @@ public class ConfigManager {
 
     /**
      * Check if world is enabled for sleep functionality
+     * 
      * @param worldName World name to check
      * @return true if enabled
      */
@@ -143,6 +168,7 @@ public class ConfigManager {
 
     /**
      * Get a message from config
+     * 
      * @param key Message key
      * @return Formatted message
      */
@@ -152,6 +178,7 @@ public class ConfigManager {
 
     /**
      * Check if particles are enabled
+     * 
      * @return true if particles should be shown
      */
     public boolean areParticlesEnabled() {
@@ -160,81 +187,117 @@ public class ConfigManager {
 
     /**
      * Check if sounds are enabled
+     * 
      * @return true if sounds should be played
      */
     public boolean areSoundsEnabled() {
         return soundsEnabled;
     }
-    
+
     /**
      * Check if percentage mode is enabled
+     * 
      * @return true if percentage mode is on
      */
     public boolean isPercentageMode() {
         return percentageMode;
     }
-    
+
     /**
      * Get required sleep percentage
+     * 
      * @return Percentage of players required to sleep
      */
     public int getSleepPercentage() {
         return sleepPercentage;
     }
-    
+
     /**
      * Check if AFK detection is enabled
+     * 
      * @return true if AFK detection is on
      */
     public boolean isAFKDetectionEnabled() {
         return afkDetectionEnabled;
     }
-    
+
     /**
      * Get AFK timeout in seconds
+     * 
      * @return AFK timeout
      */
     public long getAFKTimeout() {
         return afkTimeout;
     }
-    
+
     /**
      * Check if AFK players should be ignored
+     * 
      * @return true if AFK players are ignored
      */
     public boolean shouldIgnoreAFKPlayers() {
         return ignoreAFKPlayers;
     }
-    
+
     /**
      * Check if particle optimization is enabled
+     * 
      * @return true if particles should be optimized
      */
     public boolean isParticleOptimizeEnabled() {
         return particleOptimize;
     }
-    
+
     /**
      * Get maximum particles per player
+     * 
      * @return Max particles per player
      */
     public int getMaxParticlesPerPlayer() {
         return maxParticlesPerPlayer;
     }
-    
+
     /**
      * Check if update checker is enabled
+     * 
      * @return true if update checker is on
      */
     public boolean isUpdateCheckerEnabled() {
         return updateCheckerEnabled;
     }
-    
+
     /**
      * Get GitHub repository for update checking
+     * 
      * @return GitHub repo in format "owner/repo"
      */
     public String getGitHubRepo() {
         return githubRepo;
+    }
+
+    // New Getters
+
+    public boolean isBossBarEnabled() {
+        return bossBarEnabled;
+    }
+
+    public String getBossBarTitle() {
+        return bossBarTitle;
+    }
+
+    public String getBossBarColor() {
+        return bossBarColor;
+    }
+
+    public String getBossBarStyle() {
+        return bossBarStyle;
+    }
+
+    public boolean isSmoothSleepEnabled() {
+        return smoothSleepEnabled;
+    }
+
+    public long getSmoothSleepSpeed() {
+        return smoothSleepSpeed;
     }
 }

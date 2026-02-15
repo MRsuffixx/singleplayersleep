@@ -72,9 +72,27 @@ effects:
     # Maximum particles per player (when optimize is true)
     max-per-player: 10
 
-  sounds:
-    # Enable sound effects during sleep and morning
+  bossbar:
+    # Enable BossBar to show sleep progress
     enabled: true
+    
+    # Title of the BossBar
+    # Placeholders: {player} - player name, {percentage} - sleep percentage
+    title: "&e&lSleeping... &f({percentage}%)"
+    
+    # Color of the BossBar (BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW)
+    color: BLUE
+    
+    # Style of the BossBar (SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20)
+    style: SOLID
+
+  smooth-sleep:
+    # Enable smooth night skipping (time acceleration instead of instant skip)
+    enabled: true
+    
+    # Speed of time acceleration (ticks added per tick)
+    # Higher value = faster night skip
+    speed: 100
 
 # ========================================
 # MESSAGES
@@ -107,6 +125,9 @@ messages:
   
   # Message when a player is AFK
   player-afk: "&7{player} is AFK and won't count towards sleep."
+
+  # Message when a player wakes up (cancels sleep)
+  player-woke-up: "&e{player} woke up! Night skip cancelled."
 
 # ========================================
 # ADVANCED SETTINGS
