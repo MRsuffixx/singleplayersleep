@@ -198,6 +198,10 @@ public class ConfigManager {
         plugin.saveConfig();
     }
 
+    public boolean isLogSleepEventsEnabled() {
+        return config.getBoolean("log-sleep-events", false);
+    }
+
     /**
      * Check if world is enabled for sleep functionality
      * 

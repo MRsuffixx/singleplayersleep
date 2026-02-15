@@ -64,10 +64,8 @@ public class SleepListener implements Listener {
     private void processSleep(Player player, World world) {
         String worldName = world.getName();
 
-        // Update BossBars for everyone
+        // Initial BossBar Update
         updateBossBars(world);
-
-        // Check if stats processing is needed (handled later in night skip or daily)
 
         if (plugin.getConfigManager().isPercentageMode()) {
             checkPercentageRequirement(world);
@@ -77,23 +75,42 @@ public class SleepListener implements Listener {
                 return; // Already processing
             }
 
-            plugin.debugLog("Starting sleep process for " + player.getName());
+            // Only log if enabled
+            if (plugin.getConfigManager().isLogSleepEventsEnabled()) {
+                plugin.getLogger().info("Starting sleep process for " + player.getName());
+            }
 
             // Broadcast sleep message
             String sleepMessage = plugin.getConfigManager().getMessage("player-sleeping")
                     .replace("{player}", player.getName());
-            MessageUtil.broadcastMessage(sleepMessage);
+
+            // Send to online players directly to avoid console logging
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                MessageUtil.sendMessage(p, sleepMessage);
+            }
 
             EffectUtil.playSleepEffects(player);
 
-            // Schedule night skip
+            // Start BossBar Countdown
+            long delay = plugin.getConfigManager().getSleepDelay();
+            final long startTime = System.currentTimeMillis();
+
             BukkitTask task = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    skipNight(world);
-                    pendingTasks.remove(worldName);
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    float progress = (float) elapsed / (delay * 50.0f); // 50ms per tick
+
+                    if (progress >= 1.0f) {
+                        skipNight(world);
+                        pendingTasks.remove(worldName);
+                        this.cancel();
+                    } else {
+                        // Update BossBar with timer percentage
+                        plugin.getBossBarManager().updateAllProgress(progress, null);
+                    }
                 }
-            }.runTaskLater(plugin, plugin.getConfigManager().getSleepDelay());
+            }.runTaskTimer(plugin, 1L, 1L);
 
             pendingTasks.put(worldName, task);
         }
@@ -112,8 +129,6 @@ public class SleepListener implements Listener {
     private void handleSleepCancel(Player player, World world) {
         String worldName = world.getName();
 
-        // Wait a tick to see if they are still counted as sleeping (for quit event it's
-        // immediate, for bed leave it might be)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -130,29 +145,19 @@ public class SleepListener implements Listener {
 
                         String msg = plugin.getConfigManager().getMessage("player-woke-up")
                                 .replace("{player}", player.getName());
-                        MessageUtil.broadcastMessage(msg);
+                        // Send to online players
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            MessageUtil.sendMessage(p, msg);
+                        }
 
                         plugin.getBossBarManager().removeAllBossBars();
                     }
-                } else {
-                    // Re-check percentage
-                    // If falls below threshold, we should cancel logic if we implemented a delay
-                    // for percentage too
-                    // Current percentage logic in processSleep doesn't schedule a delay for
-                    // percentage mode in original code
-                    // But we should probably standardize it.
-                    // For now, percentage mode in original code didn't convert to immediate skip?
-                    // Let's stick to original percentage logic but added bossbars.
                 }
             }
         }.runTaskLater(plugin, 2L);
     }
 
     private void checkPercentageRequirement(World world) {
-        // ... (Existing percentage logic but with BossBar updates)
-        // For brevity in this refactor, assuming similar logic but using updateBossBars
-        // If threshold met -> schedule skipNight
-
         long totalPlayers = world.getPlayers().stream()
                 .filter(p -> p.getGameMode() != GameMode.CREATIVE && p.getGameMode() != GameMode.SPECTATOR)
                 .filter(p -> !plugin.getConfigManager().shouldIgnoreAFKPlayers() || !plugin.getAFKManager().isAFK(p))
@@ -173,15 +178,31 @@ public class SleepListener implements Listener {
             // Broadcast & Skip
             String sleepMessage = plugin.getConfigManager().getMessage("player-sleeping")
                     .replace("{player}", sleepingPlayers + " players");
-            MessageUtil.broadcastMessage(sleepMessage);
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                MessageUtil.sendMessage(p, sleepMessage);
+            }
+
+            // For percentage mode, we can also use countdown, or keep it simple.
+            // Let's use countdown for consistency if delay > 0
+            long delay = plugin.getConfigManager().getSleepDelay();
+            final long startTime = System.currentTimeMillis();
 
             BukkitTask task = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    skipNight(world);
-                    pendingTasks.remove(worldName);
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    float progress = (float) elapsed / (delay * 50.0f);
+
+                    if (progress >= 1.0f) {
+                        skipNight(world);
+                        pendingTasks.remove(worldName);
+                        this.cancel();
+                    } else {
+                        plugin.getBossBarManager().updateAllProgress(progress, null);
+                    }
                 }
-            }.runTaskLater(plugin, plugin.getConfigManager().getSleepDelay());
+            }.runTaskTimer(plugin, 1L, 1L);
 
             pendingTasks.put(worldName, task);
         }
@@ -190,8 +211,6 @@ public class SleepListener implements Listener {
     private void skipNight(World world) {
         if (plugin.getConfigManager().isSmoothSleepEnabled()) {
             // Smooth Sleep
-
-            // Cancel any existing animation
             if (activeAnimations.containsKey(world.getName())) {
                 activeAnimations.get(world.getName()).cancel();
             }
@@ -217,10 +236,13 @@ public class SleepListener implements Listener {
             world.setThundering(false);
         }
 
-        MessageUtil.broadcastMessage(plugin.getConfigManager().getMessage("good-morning"));
+        String goodMorning = plugin.getConfigManager().getMessage("good-morning");
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            MessageUtil.sendMessage(p, goodMorning);
+        }
+
         plugin.getBossBarManager().removeAllBossBars();
 
-        // Cooldown & Auto-save logic same as before
         plugin.getCooldownManager().setCooldown(world.getName());
 
         if (plugin.getConfigManager().isAutoSaveEnabled()) {
@@ -237,6 +259,10 @@ public class SleepListener implements Listener {
         if (!plugin.getConfigManager().isBossBarEnabled())
             return;
 
+        if (pendingTasks.containsKey(world.getName())) {
+            return;
+        }
+
         long totalPlayers = world.getPlayers().stream()
                 .filter(p -> p.getGameMode() != GameMode.CREATIVE && p.getGameMode() != GameMode.SPECTATOR)
                 .filter(p -> !plugin.getConfigManager().shouldIgnoreAFKPlayers() || !plugin.getAFKManager().isAFK(p))
@@ -249,7 +275,6 @@ public class SleepListener implements Listener {
             plugin.getBossBarManager().showBossBar(p, percentage, (int) totalPlayers, sleeping);
         }
 
-        // Hide if no one is sleeping (and not currently skipping night)
         if (sleeping == 0 && !activeAnimations.containsKey(world.getName())) {
             plugin.getBossBarManager().removeAllBossBars();
         }

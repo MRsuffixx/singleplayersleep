@@ -1,9 +1,7 @@
 package com.mrsuffix.singleplayersleep.managers;
 
 import com.mrsuffix.singleplayersleep.SinglePlayerSleep;
-import com.mrsuffix.singleplayersleep.utils.MessageUtil;
 import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -42,64 +40,55 @@ public class BossBarManager {
                 .replace("{current}", String.valueOf(sleepingPlayers))
                 .replace("{required}", String.valueOf(totalPlayers));
 
-        BossBar.Color color = parseColor(plugin.getConfigManager().getBossBarColor());
-        BossBar.Overlay style = parseOverlay(plugin.getConfigManager().getBossBarStyle());
+        // Use cached Enums from ConfigManager
+        BossBar.Color color = plugin.getConfigManager().getBossBarColor();
+        BossBar.Overlay style = plugin.getConfigManager().getBossBarStyle();
 
-        // Create a new BossBar or reuse (ideally we should reuse, but for now let's
-        // create fresh to ensure style updates apply)
-        // Note: In a production environment, updating the existing instance is better
-        // for performance.
-        // However, to keep it simple and bug-free for this fix, we create a new one.
-        BossBar bossBar = BossBar.bossBar(
-                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand()
-                        .deserialize(title),
-                (float) sleepingPlayers / totalPlayers,
-                color,
-                style);
+        // Check if player already has a bossbar
+        BossBar bossBar = playerBossBars.get(player.getUniqueId());
 
-        // If player already has a bossbar, remove it first
-        removeBossBar(player);
+        if (bossBar == null) {
+            // Create new if not exists
+            bossBar = BossBar.bossBar(
+                    net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand()
+                            .deserialize(title),
+                    (float) percentage / 100.0f,
+                    color,
+                    style);
 
-        player.showBossBar(bossBar);
-        playerBossBars.put(player.getUniqueId(), bossBar);
-    }
-
-    private BossBar.Color parseColor(String colorName) {
-        if (colorName == null)
-            return BossBar.Color.BLUE;
-        try {
-            return BossBar.Color.valueOf(colorName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("Invalid BossBar color: " + colorName + ". Defaulting to BLUE.");
-            return BossBar.Color.BLUE;
+            player.showBossBar(bossBar);
+            playerBossBars.put(player.getUniqueId(), bossBar);
+        } else {
+            // Update existing
+            bossBar.name(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand()
+                    .deserialize(title));
+            bossBar.progress(Math.max(0.0f, Math.min(1.0f, (float) percentage / 100.0f)));
+            bossBar.color(color);
+            bossBar.overlay(style);
         }
     }
 
-    private BossBar.Overlay parseOverlay(String styleName) {
-        if (styleName == null)
-            return BossBar.Overlay.PROGRESS;
-        String normalized = styleName.toUpperCase();
+    /**
+     * Update progress of existing BossBars without recreating them
+     * 
+     * @param progress    Progress from 0.0 to 1.0
+     * @param customTitle Optional custom title, null to keep existing
+     */
+    public void updateAllProgress(float progress, String customTitle) {
+        if (!plugin.getConfigManager().isBossBarEnabled())
+            return;
 
-        // Map Bukkit/Common names to Adventure names
-        switch (normalized) {
-            case "SOLID":
-                return BossBar.Overlay.PROGRESS;
-            case "SEGMENTED_6":
-                return BossBar.Overlay.NOTCHED_6;
-            case "SEGMENTED_10":
-                return BossBar.Overlay.NOTCHED_10;
-            case "SEGMENTED_12":
-                return BossBar.Overlay.NOTCHED_12;
-            case "SEGMENTED_20":
-                return BossBar.Overlay.NOTCHED_20;
-            default:
-                try {
-                    return BossBar.Overlay.valueOf(normalized);
-                } catch (IllegalArgumentException e) {
-                    plugin.getLogger()
-                            .warning("Invalid BossBar style: " + styleName + ". Defaulting to SOLID/PROGRESS.");
-                    return BossBar.Overlay.PROGRESS;
-                }
+        net.kyori.adventure.text.Component titleComp = null;
+        if (customTitle != null) {
+            titleComp = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand()
+                    .deserialize(customTitle);
+        }
+
+        for (BossBar bar : playerBossBars.values()) {
+            bar.progress(Math.max(0.0f, Math.min(1.0f, progress)));
+            if (titleComp != null) {
+                bar.name(titleComp);
+            }
         }
     }
 
