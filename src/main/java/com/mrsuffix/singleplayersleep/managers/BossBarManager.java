@@ -39,23 +39,68 @@ public class BossBarManager {
         String title = plugin.getConfigManager().getBossBarTitle()
                 .replace("{player}", player.getName())
                 .replace("{percentage}", String.valueOf(percentage))
-                .replace("{sleeping}", String.valueOf(sleepingPlayers))
-                .replace("{needed}", String.valueOf(totalPlayers));
+                .replace("{current}", String.valueOf(sleepingPlayers))
+                .replace("{required}", String.valueOf(totalPlayers));
 
-        BossBar.Color color = BossBar.Color.valueOf(plugin.getConfigManager().getBossBarColor().toUpperCase());
-        BossBar.Overlay style = BossBar.Overlay.valueOf(plugin.getConfigManager().getBossBarStyle().toUpperCase());
+        BossBar.Color color = parseColor(plugin.getConfigManager().getBossBarColor());
+        BossBar.Overlay style = parseOverlay(plugin.getConfigManager().getBossBarStyle());
 
+        // Create a new BossBar or reuse (ideally we should reuse, but for now let's
+        // create fresh to ensure style updates apply)
+        // Note: In a production environment, updating the existing instance is better
+        // for performance.
+        // However, to keep it simple and bug-free for this fix, we create a new one.
         BossBar bossBar = BossBar.bossBar(
-                Component.text(MessageUtil.colorize(title)),
+                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand()
+                        .deserialize(title),
                 (float) sleepingPlayers / totalPlayers,
                 color,
                 style);
 
-        // If player already has a bossbar, remove it first (or update it)
+        // If player already has a bossbar, remove it first
         removeBossBar(player);
 
         player.showBossBar(bossBar);
         playerBossBars.put(player.getUniqueId(), bossBar);
+    }
+
+    private BossBar.Color parseColor(String colorName) {
+        if (colorName == null)
+            return BossBar.Color.BLUE;
+        try {
+            return BossBar.Color.valueOf(colorName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Invalid BossBar color: " + colorName + ". Defaulting to BLUE.");
+            return BossBar.Color.BLUE;
+        }
+    }
+
+    private BossBar.Overlay parseOverlay(String styleName) {
+        if (styleName == null)
+            return BossBar.Overlay.PROGRESS;
+        String normalized = styleName.toUpperCase();
+
+        // Map Bukkit/Common names to Adventure names
+        switch (normalized) {
+            case "SOLID":
+                return BossBar.Overlay.PROGRESS;
+            case "SEGMENTED_6":
+                return BossBar.Overlay.NOTCHED_6;
+            case "SEGMENTED_10":
+                return BossBar.Overlay.NOTCHED_10;
+            case "SEGMENTED_12":
+                return BossBar.Overlay.NOTCHED_12;
+            case "SEGMENTED_20":
+                return BossBar.Overlay.NOTCHED_20;
+            default:
+                try {
+                    return BossBar.Overlay.valueOf(normalized);
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger()
+                            .warning("Invalid BossBar style: " + styleName + ". Defaulting to SOLID/PROGRESS.");
+                    return BossBar.Overlay.PROGRESS;
+                }
+        }
     }
 
     /**
