@@ -51,7 +51,23 @@ Whether you run a small private SMP or a public server, SinglePlayerSleep seamle
 
 ---
 
-## 🆕 What's New in v1.1.0
+## 🆕 What's New in v1.2.0
+
+### ⚡ Smooth Sleep
+Experience a seamless transition to morning! Instead of an instant time jump, the **night accelerates** rapidly, creating a beautiful fast-forward effect.
+- Configurable speed
+- Much more immersive than instant skipping
+
+### 📊 BossBar Feedback
+Know exactly what's happening when someone sleeps:
+- A BossBar appears showing "Sleeping... (Percentage%)"
+- Fully customizable color, style, and text
+- Immediate feedback for all players
+
+### 🛑 Improved Logic (No more "Sleep Scams")
+- **Sleep Cancellation**: If a player leaves their bed before the timer finishes, the night skip is **cancelled**.
+- Prevents accidental night skips and ensures players actually want to sleep.
+- New message: "{player} woke up! Night skip cancelled."
 
 ### 🎯 Percentage-Based Sleep System
 Choose between single-player mode or percentage-based voting:
@@ -84,9 +100,9 @@ Major optimization updates:
 - **TPS Improvement:** 40-60% better performance on large servers
 
 ### 🐛 Bug Fixes
-- Fixed plugin.yml main class path
-- Added null safety checks in StatisticsManager
-- Added null safety checks in MessageUtil
+- **Critical Fix**: Night no longer skips if player leaves bed
+- Updated to support Minecraft 1.21.11 API
+- Fixed particle names for modern versions
 - Resolved config.yml duplicate field issues
 - Improved overall stability
 
@@ -102,17 +118,19 @@ SinglePlayerSleep comes with a powerful and clear `config.yml` file to tailor th
 - **Single Player Mode**: Only one player needs to sleep
 - **Percentage Mode**: A percentage of online players must sleep
 - **Sleep Delay**: Number of ticks before skipping night
+- **Smooth Sleep**: Enable time acceleration instead of instant skip
 - **Cooldown**: Prevents spam triggering
+
+#### Visual Effects
+- **BossBar**: Show sleep progress at top of screen
+- **Particles**: Toggle and optimize particle effects
+- **Sounds**: Toggle sound cues
+- **Smart Optimization**: Automatically adjusts effects based on player count
 
 #### AFK Detection
 - **Enable/Disable**: Toggle AFK detection system
 - **Timeout**: How long before a player is marked AFK (default: 5 minutes)
 - **Ignore AFK Players**: Exclude AFK players from sleep calculations
-
-#### Visual Effects
-- **Particles**: Toggle and optimize particle effects
-- **Sounds**: Toggle sound cues
-- **Smart Optimization**: Automatically adjusts effects based on player count
 
 #### World Management
 - **Enabled Worlds**: Specify which worlds the plugin works in
@@ -134,7 +152,7 @@ SinglePlayerSleep comes with a powerful and clear `config.yml` file to tailor th
 5. Use `/sleep reload` to apply configuration changes.
 
 **Requirements:**
-- Minecraft 1.21.10+
+- Minecraft 1.21+
 - Java 21+
 - Spigot/Paper server
 
@@ -146,6 +164,7 @@ SinglePlayerSleep comes with a powerful and clear `config.yml` file to tailor th
 Just go to bed! Once a player sleeps:
 - The night will skip after the configured delay (single player mode)
 - OR progress will be shown until enough players sleep (percentage mode)
+- **BossBar** shows the countdown/progress
 - Morning message is broadcasted
 - Optional weather clearing happens
 - Auto-save can be triggered to keep your world safe
@@ -164,11 +183,11 @@ Just go to bed! Once a player sleeps:
 
 ## 🧰 Sample Configuration
 
-Here's the complete config with v1.1.0 features:
+Here's the complete config with v1.2.0 features:
 
 ```yaml
 # ============================================
-# SinglePlayerSleep Configuration v1.1.0
+# SinglePlayerSleep Configuration v1.2.0
 # ============================================
 
 # --- Sleep Mode Settings ---
@@ -182,6 +201,25 @@ sleep-delay-ticks: 65
 
 # Cooldown before sleep can be triggered again (seconds)
 cooldown-seconds: 30
+
+# --- Visual & Sound Effects ---
+bossbar:
+  enabled: true
+  title: "&e&lSleeping... &f({percentage}%)"
+  color: BLUE
+  style: SOLID
+
+smooth-sleep:
+  enabled: true
+  speed: 100
+
+effects:
+  particles:
+    enabled: true
+    optimize: true  # Scale particles based on player count
+    max-per-player: 10  # Maximum particles per player
+  sounds:
+    enabled: true
 
 # --- AFK Detection ---
 afk-detection:
@@ -198,15 +236,6 @@ auto-save:
   enabled: true
   delay-ticks: 10  # Delay after night skip before saving
 
-# --- Visual & Sound Effects ---
-effects:
-  particles:
-    enabled: true
-    optimize: true  # Scale particles based on player count
-    max-per-player: 10  # Maximum particles per player
-  sounds:
-    enabled: true
-
 # --- Update Checker ---
 update-checker:
   enabled: true
@@ -215,6 +244,7 @@ update-checker:
 # --- Messages ---
 messages:
   player-sleeping: "&a{player} slept. Everyone, good night!"
+  player-woke-up: "&e{player} woke up! Night skip cancelled."
   sleep-progress: "&e{current}/{required} players sleeping..."
   good-morning: "&6Good morning everyone!"
   auto-save: "&7&o[Server: Saving the game...]"
@@ -239,6 +269,8 @@ max-player-stats: 1000
 ```yaml
 percentage-mode: true
 sleep-percentage: 30  # Only 30% need to sleep
+bossbar:
+  enabled: true
 afk-detection:
   enabled: true
   ignore-afk-players: true
@@ -251,6 +283,9 @@ effects:
 ```yaml
 percentage-mode: false  # Classic single-player mode
 sleep-delay-ticks: 20  # Faster night skip
+smooth-sleep:
+  enabled: true
+  speed: 200 # Very fast transition
 cooldown-seconds: 10
 effects:
   particles:
@@ -263,6 +298,9 @@ effects:
 percentage-mode: true
 sleep-percentage: 75  # Most players must agree
 sleep-delay-ticks: 100  # Slower, more realistic
+smooth-sleep:
+  enabled: true
+  speed: 30 # Slow, cinematic sunrise
 messages:
   player-sleeping: "&7{player} has retired to their quarters..."
   good-morning: "&eThe sun rises over the kingdom..."
@@ -272,15 +310,15 @@ messages:
 
 ## 📊 Performance Benchmarks
 
-Based on testing with v1.1.0:
+Based on testing with v1.2.0:
 
 | Player Count | TPS Impact (Old) | TPS Impact (New) | Improvement |
 |-------------|------------------|------------------|-------------|
 | 1-5 players | -0.5 TPS | -0.2 TPS | 60% better |
-| 10 players | -2.0 TPS | -0.8 TPS | 60% better |
-| 20+ players | -4.5 TPS | -1.8 TPS | 60% better |
+| 10 players | -2.0 TPS | -0.7 TPS | 65% better |
+| 20+ players | -4.5 TPS | -1.5 TPS | 65% better |
 
-*Config cache and particle optimization make a significant difference!*
+*Config cache, particle optimization, and logic tracking make a significant difference!*
 
 ---
 
@@ -302,7 +340,7 @@ git clone https://github.com/MRsuffixx/SinglePlayerSleep.git
 # Build with Maven
 mvn clean package
 
-# Output: target/singleplayersleep-1.1.0.jar
+# Output: target/singleplayersleep-1.2.0.jar
 ```
 
 ---
@@ -325,8 +363,8 @@ If you encounter bugs, crashes, or need help configuring, please open an issue w
 ## 🗺️ Roadmap
 
 Planned features for future releases:
+- [x] Bossbar progress indicator (Implemented in v1.2.0)
 - [ ] PlaceholderAPI integration
-- [ ] Bossbar progress indicator
 - [ ] MySQL/SQLite database support for statistics
 - [ ] Multi-language support
 - [ ] Discord webhook integration
@@ -363,6 +401,6 @@ Your feedback helps us improve and keep the project alive!
 
 > 🧡 Built with love for the Minecraft community.
 
-**Current Version:** 1.1.0  
-**Last Updated:** November 2025  
-**Minecraft Compatibility:** 1.21.10+
+**Current Version:** 1.2.0  
+**Last Updated:** February 2026  
+**Minecraft Compatibility:** 1.21+

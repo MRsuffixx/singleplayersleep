@@ -52,10 +52,53 @@ public class ConfigManager {
         plugin.reloadConfig();
         this.config = plugin.getConfig();
 
+        // Update config with new values if missing
+        updateConfig();
+
         // Cache all config values
         cacheConfigValues();
 
         plugin.debugLog("Configuration loaded and cached");
+    }
+
+    /**
+     * Update configuration with new values (preserves existing settings)
+     */
+    private void updateConfig() {
+        boolean changed = false;
+
+        // BossBar Settings (Added in v1.2.0)
+        changed |= setIfMissing("effects.bossbar.enabled", true);
+        changed |= setIfMissing("effects.bossbar.title", "&e&lSleeping... &f({percentage}%)");
+        changed |= setIfMissing("effects.bossbar.color", "BLUE");
+        changed |= setIfMissing("effects.bossbar.style", "SOLID");
+
+        // Smooth Sleep Settings (Added in v1.2.0)
+        changed |= setIfMissing("effects.smooth-sleep.enabled", true);
+        changed |= setIfMissing("effects.smooth-sleep.speed", 100L);
+
+        // Messages (Added in v1.2.0)
+        changed |= setIfMissing("messages.player-woke-up", "&e{player} woke up! Night skip cancelled.");
+
+        if (changed) {
+            plugin.saveConfig();
+            plugin.debugLog("Configuration updated with new values");
+        }
+    }
+
+    /**
+     * Set a config value if it doesn't exist
+     * 
+     * @param path         Config path
+     * @param defaultValue Default value
+     * @return true if the value was set
+     */
+    private boolean setIfMissing(String path, Object defaultValue) {
+        if (!config.contains(path)) {
+            config.set(path, defaultValue);
+            return true;
+        }
+        return false;
     }
 
     /**
