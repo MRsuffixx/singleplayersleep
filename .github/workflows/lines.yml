@@ -1,0 +1,30 @@
+name: Count Lines
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Count lines
+        run: |
+          sudo apt-get install -y cloc
+          cloc . --json --out=lines.json
+
+      - name: Extract total lines
+        run: |
+          TOTAL=$(jq '.SUM.code' lines.json)
+          echo "{\"schemaVersion\":1,\"label\":\"lines\",\"message\":\"$TOTAL\",\"color\":\"blue\"}" > badge.json
+
+      - name: Commit badge.json
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add badge.json
+          git commit -m "update lines badge" || echo "No changes"
+          git push
