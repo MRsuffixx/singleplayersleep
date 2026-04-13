@@ -6,7 +6,7 @@
 ![Modrinth Downloads](https://img.shields.io/modrinth/dt/piy7OZtR?color=blue&label=Downloads&logo=modrinth)
 ![Modrinth Version](https://img.shields.io/modrinth/v/piy7OZtR?label=Latest%20Version&logo=modrinth)
 ![Java Version](https://img.shields.io/badge/Java-21%2B-blue)
-![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.10-green)
+![Minecraft Version](https://img.shields.io/badge/Minecraft-26.1.2-green)
 ![Lines](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/MRsuffixx/singleplayersleep/main/badge.json)
 
 > ✨ A modern and lightweight Minecraft plugin to skip the night instantly in single-player worlds or with percentage-based voting, packed with rich features, visual effects, and fully configurable settings.
